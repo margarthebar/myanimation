@@ -135,10 +135,15 @@ void first_pass() {
   jdyrlandweaver
   ====================*/
 struct vary_node ** second_pass() {
-  printf("entered function\n");
+  //printf("entered function\n");
   struct vary_node *knobs[num_frames];
-  int i, n, start_frame, end_frame, done;
+  int i, n, start_frame, end_frame, done, empty;
   double start_val, end_val, increment, val;
+  empty = 0;
+  int elements[num_frames];
+  for(i=0; i<num_frames; i++){
+    elements[i] = 0;
+  }
   for(i=0; i<lastop; i++){
     start_frame = op[i].op.vary.start_frame;
     end_frame = op[i].op.vary.end_frame;
@@ -147,55 +152,35 @@ struct vary_node ** second_pass() {
     increment = (end_val-start_val)/(end_frame-start_frame);
     val = 0;
     done = -1;
-    //Search for knob
-    //go through knobs, looking through each thing in the array for one of the right name
     if(op[i].opcode==VARY){
-      //go through all frames
-      for(n = 0; n<num_frames; n++){
-	struct vary_node *this_node = knobs[n];
-	struct vary_node *found_node;
-	//go through all knobs looking for the one with the right name
-	if(this_node==NULL){
-	  //printf("got here\n");
-	  struct vary_node *new_node = {op[i].op.vary.p->name,start_val,found_node};
-	  this_node = new_node;
-	  /*
-	  strcpy(found_node->name,op[i].op.vary.p->name);
-	  printf("got to this point\n");
-	  printf("knob name: %s\n",found_node->name);
-	  found_node->value = val;
-	  this_node->next = found_node;
-	  */
-	  //printf("finished here\n");
-	}else{
-	  while(this_node!=NULL && !done){
-	    //printf("going through the while loop\n");
-	    if(strncmp(op[i].op.vary.p->name,this_node->name,strlen(op[i].op.vary.p->name))==0){
-	      //modify
-	      //printf("knob found; modify\n");
-	      this_node->value = val;
-	      val+=increment;
-	      done = 0;
-	    }else{
-	      //if the next knob doesn't exist, add it
-	      if(this_node->next==NULL){
-		//strcpy(found_node->name,op[i].op.vary.p->name);
-		struct vary_node *temp_node = {op[i].op.vary.p->name,val,found_node};
-		this_node->next = temp_node;
-		//printf("knob name: %s\n",this_node->name);
-		val+=increment;
-		done = 0;
-	      }else{
-		//move to the next knob
-		//printf("just moving on\n");
-		this_node = this_node->next;
-	      }
+      for(n=0; n<num_frames; n++){
+	if(n>=start_frame && n<=end_frame){
+	  //printf("starting %d loop:\n",n);
+	  if(elements[n]==0){
+	    //printf("adding first node\n");
+	    elements[n] = 1;
+	    struct vary_node *first_node = {op[i].op.vary.p->name, val, NULL};
+	    val+=increment;
+	    knobs[n] = first_node;
+	    //printf("knobs[%d] now: %s\n",n,knobs[n]->name);
+	  }else{
+	    int num = 1;
+	    struct vary_node *this_node = knobs[n];
+	    while(num<elements[n]){
+	      this_node = this_node->next;
 	    }
+	    //printf("adding next node\n");
+	    struct vary_node *next_node = {op[i].op.vary.p->name, val, NULL};
+	    val+=increment;
+	    this_node->next = next_node;
+	    elements[n]++;
+	    //printf("next node in knobs[%d] now: %s\n",n,next_node->name);
 	  }
 	}
       }
     }
   }
+  //printf("reached end of function\n");
   return knobs;
 }
 
@@ -291,32 +276,55 @@ void my_main( /*int polygons*/ ) {
        3) At the end of each frame loop, save the image using the basename + the frame # (don't forget padding zeros)
     */
     knobs = second_pass();
-    print_knobs();
-    printf("finished second_pass\n");
-    printf("first knob: %s\n",vn->name);
-    
+    //print_knobs();
+    //printf("finished second_pass\n");
+    //printf("knobs[1]: %s\n",knobs[1]->name);
+    vn = knobs[0];
+    //printf("first knob: %s\n",vn->name);
+    int done;
+    done = -1;
+    //printf("knobs[1]: %s\n",knobs[1]->name);
     for(f=0; f<num_frames; f++){
+      knobs = second_pass();
+      printf("frame number: %d\n",f);
       //go through knobs checking to see if they are in the symtable, if not add them
+      //printf("knobs[f]: %s\n",knobs[f]->name);
       vn = knobs[f];
-      printf("here\n");
-      while(vn!=NULL){
-	printf("here now\n");
-	printf("vn name: %s\n",vn->name);
+      //printf("knobs[f]: %s\n",knobs[f]->name);
+      //printf("here\n");
+      int l;
+      l = 1;
+      while(l<lastsym){
+	//printf("entered while loop\n");
+	//printf("lastsym: %d\n",lastsym);
+	//printf("l: %d\n",l);
+	//printf("here now\n");
+	//printf("vn name: %s\n",vn->name);
 	if(lookup_symbol(vn->name)==NULL){
-	  printf("adding symbol\n");
+	  //printf("adding symbol\n");
 	  add_symbol(vn->name, SYM_VALUE, &vn->value);
-	  printf("added symbol\n");
+	  //printf("added symbol\n");
 	}else{
-	  printf("setting value\n");
+	  //printf("setting value\n");
 	  set_value(lookup_symbol(vn->name), vn->value);
-	  printf("set value\n");
+	  //printf("set value\n");
 	}
-	vn = vn->next;
-	printf("finished this loop\n");
+	l++;
+	if(l<lastsym){
+	  vn = vn->next;
+	}
+	//printf("finished this loop\n");
       }
+      //printf("exited while loop\n");
+      //printf("knobs[1]: %s\n",knobs[1]->name);
       
       for (i=0;i<lastop;i++) {
-  
+	s = new_stack();
+	transform = new_matrix(4,4);
+	tmp = new_matrix(4,4);
+	knobs = second_pass();
+	//printf("entered for loop: %d\n",i);
+	//printf("knobs[1] here: %s\n",knobs[1]->name);
 	switch (op[i].opcode) {
 
 	case SPHERE:
@@ -373,18 +381,18 @@ void my_main( /*int polygons*/ ) {
 	  zval = op[i].op.move.d[2];
 
 	  //do something about knobs
-	  if(op[i].op.move.p->name!=NULL){
+	  if(op[i].op.move.p!=NULL){
 	    xval *= op[i].op.move.p->s.value;
 	    yval *= op[i].op.move.p->s.value;
 	    zval *= op[i].op.move.p->s.value;
 	  }
-      
 	  transform = make_translate( xval, yval, zval );
 	  //multiply by the existing origin
 	  matrix_mult( s->data[ s->top ], transform );
+	  knobs = second_pass();
 	  //put the new matrix on the top
 	  copy_matrix( transform, s->data[ s->top ] );
-	  free_matrix( transform );
+	  //free_matrix( transform );
 	  break;
 
 	case SCALE:
@@ -393,7 +401,7 @@ void my_main( /*int polygons*/ ) {
 	  zval = op[i].op.scale.d[2];
 
 	  //do something about knobs
-	  if(op[i].op.move.p->name!=NULL){
+	  if(op[i].op.move.p!=NULL){
 	    xval *= op[i].op.move.p->s.value;
 	    yval *= op[i].op.move.p->s.value;
 	    zval *= op[i].op.move.p->s.value;
@@ -401,16 +409,17 @@ void my_main( /*int polygons*/ ) {
       
 	  transform = make_scale( xval, yval, zval );
 	  matrix_mult( s->data[ s->top ], transform );
+	  knobs = second_pass();
 	  //put the new matrix on the top
 	  copy_matrix( transform, s->data[ s->top ] );
-	  free_matrix( transform );
+	  //free_matrix( transform );
 	  break;
 
 	case ROTATE:
 	  xval = op[i].op.rotate.degrees * ( M_PI / 180 );
 
 	  //do something about knobs
-	  if(op[i].op.move.p->name!=NULL){
+	  if(op[i].op.move.p!=NULL){
 	    xval *= op[i].op.move.p->s.value;
 	  }
 
@@ -423,9 +432,10 @@ void my_main( /*int polygons*/ ) {
 	    transform = make_rotZ( xval );
 
 	  matrix_mult( s->data[ s->top ], transform );
+	  knobs = second_pass();
 	  //put the new matrix on the top
 	  copy_matrix( transform, s->data[ s->top ] );
-	  free_matrix( transform );
+	  //free_matrix( transform );
 	  break;
 
 	case PUSH:
@@ -461,17 +471,14 @@ void my_main( /*int polygons*/ ) {
   
       free_stack( s );
       free_matrix( tmp );
-      //free_matrix( transform );
+      free_matrix( transform );
       //save file
       sprintf(frame_name, "%s%04d.png",name,f);
       printf("%s\n",frame_name);
       save_extension( t, frame_name);
       clear_screen(t);
-      /*If you use sprintf, 
-  you can use "%0xd" for this purpose. It will add at most
-  x 0s in front of a number, if needed, so if used correctly,
-  and x = 4, you would get numbers like 0001, 0002, 0011,
-  0487*/
+      knobs = second_pass();
+      //printf("end knobs[1]: %s\n",knobs[1]->name);
     }
   }
 }
