@@ -140,7 +140,10 @@ struct vary_node ** second_pass() {
   int i, n, start_frame, end_frame, done, empty;
   double start_val, end_val, increment, val;
   empty = 0;
+<<<<<<< HEAD
   val = 0;
+=======
+>>>>>>> 487aed0375021a1c13012ea11c132fd364b30a2e
   int elements[num_frames];
   for(i=0; i<num_frames; i++){
     elements[i] = 0;
@@ -160,6 +163,7 @@ struct vary_node ** second_pass() {
 	  if(elements[n]==0){
 	    //printf("adding first node\n");
 	    elements[n] = 1;
+<<<<<<< HEAD
 	    struct vary_node first_node;
 	    strncpy(first_node.name,op[i].op.vary.p->name,strlen(op[i].op.vary.p->name));
 	    first_node.value = val;
@@ -232,6 +236,24 @@ struct vary_node ** second_pass() {
 	     printf("  final knobs[%d] name: %s\n\n",n,knobs[n]->name);
 	    }
 	    elements[n]++;
+=======
+	    struct vary_node *first_node = {op[i].op.vary.p->name, val, NULL};
+	    val+=increment;
+	    knobs[n] = first_node;
+	    //printf("knobs[%d] now: %s\n",n,knobs[n]->name);
+	  }else{
+	    int num = 1;
+	    struct vary_node *this_node = knobs[n];
+	    while(num<elements[n]){
+	      this_node = this_node->next;
+	    }
+	    //printf("adding next node\n");
+	    struct vary_node *next_node = {op[i].op.vary.p->name, val, NULL};
+	    val+=increment;
+	    this_node->next = next_node;
+	    elements[n]++;
+	    //printf("next node in knobs[%d] now: %s\n",n,next_node->name);
+>>>>>>> 487aed0375021a1c13012ea11c132fd364b30a2e
 	  }
 	}
       }
@@ -333,6 +355,7 @@ void my_main( /*int polygons*/ ) {
        3) At the end of each frame loop, save the image using the basename + the frame # (don't forget padding zeros)
     */
     knobs = second_pass();
+<<<<<<< HEAD
     int r;
     for(r=0;r<num_frames;r++){
       if(r<4){
@@ -343,21 +366,31 @@ void my_main( /*int polygons*/ ) {
       }
     }
     
+=======
+>>>>>>> 487aed0375021a1c13012ea11c132fd364b30a2e
     //print_knobs();
     //printf("finished second_pass\n");
     //printf("knobs[1]: %s\n",knobs[1]->name);
     vn = knobs[0];
+<<<<<<< HEAD
     printf("first knob: %s\n",vn->name);
+=======
+    //printf("first knob: %s\n",vn->name);
+>>>>>>> 487aed0375021a1c13012ea11c132fd364b30a2e
     int done;
     done = -1;
     //printf("knobs[1]: %s\n",knobs[1]->name);
     for(f=0; f<num_frames; f++){
       knobs = second_pass();
+<<<<<<< HEAD
       print_knobs();
+=======
+>>>>>>> 487aed0375021a1c13012ea11c132fd364b30a2e
       printf("frame number: %d\n",f);
       //go through knobs checking to see if they are in the symtable, if not add them
       //printf("knobs[f]: %s\n",knobs[f]->name);
       vn = knobs[f];
+<<<<<<< HEAD
       printf("knobs[f]: %s\n",knobs[f]->name);
       //printf("here\n");
       int l;
@@ -365,10 +398,18 @@ void my_main( /*int polygons*/ ) {
       printf("lastsym: %d\n",lastsym);
       while(l<lastsym){
 	printf("l: %d\n",l);
+=======
+      //printf("knobs[f]: %s\n",knobs[f]->name);
+      //printf("here\n");
+      int l;
+      l = 1;
+      while(l<lastsym){
+>>>>>>> 487aed0375021a1c13012ea11c132fd364b30a2e
 	//printf("entered while loop\n");
 	//printf("lastsym: %d\n",lastsym);
 	//printf("l: %d\n",l);
 	//printf("here now\n");
+<<<<<<< HEAD
 	printf("vn name: %s\n",vn->name);
 	if(lookup_symbol(vn->name)==NULL){
 	  printf("adding symbol\n");
@@ -378,6 +419,17 @@ void my_main( /*int polygons*/ ) {
 	  printf("setting value\n");
 	  set_value(lookup_symbol(vn->name), vn->value);
 	  printf("set value\n");
+=======
+	//printf("vn name: %s\n",vn->name);
+	if(lookup_symbol(vn->name)==NULL){
+	  //printf("adding symbol\n");
+	  add_symbol(vn->name, SYM_VALUE, &vn->value);
+	  //printf("added symbol\n");
+	}else{
+	  //printf("setting value\n");
+	  set_value(lookup_symbol(vn->name), vn->value);
+	  //printf("set value\n");
+>>>>>>> 487aed0375021a1c13012ea11c132fd364b30a2e
 	}
 	l++;
 	if(l<lastsym){
