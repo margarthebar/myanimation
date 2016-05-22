@@ -15,6 +15,6 @@ void my_main();
 void print_knobs();
 void process_knobs();
 void first_pass();
-struct vary_node ** second_pass();
+struct vary_node ** second_pass(struct vary_node *knobs[num_frames]);
 
 #endif
