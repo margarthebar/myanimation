@@ -62,6 +62,8 @@
 #include "draw.h"
 #include "stack.h"
 
+//struct vary_node *knobs[num_frames];
+
 /*======== void first_pass()) ==========
   Inputs:   
   Returns: 
@@ -135,15 +137,10 @@ void first_pass() {
   jdyrlandweaver
   ====================*/
 struct vary_node ** second_pass(struct vary_node *knobs[num_frames]) {
-  //printf("entered function\n");
-  //struct vary_node *knobs[num_frames];
   int i, n, start_frame, end_frame, done, empty;
   double start_val, end_val, increment, val;
   empty = 0;
-  //<<<<<<< HEAD
   val = 0;
-  //=======
-  //>>>>>>> 487aed0375021a1c13012ea11c132fd364b30a2e
   int elements[num_frames];
   for(i=0; i<num_frames; i++){
     elements[i] = 0;
@@ -154,17 +151,13 @@ struct vary_node ** second_pass(struct vary_node *knobs[num_frames]) {
     start_val = op[i].op.vary.start_val;
     end_val = op[i].op.vary.end_val;
     increment = (end_val-start_val)/(end_frame-start_frame);
-    //val = 0;
     done = -1;
     if(op[i].opcode==VARY){
       struct vary_node *other_nodes[num_frames];
       for(n=0; n<num_frames; n++){
 	if(n>=start_frame && n<=end_frame){
-	  //printf("starting %d loop:\n",n);
 	  if(elements[n]==0){
-	    //printf("adding first node\n");
 	    elements[n] = 1;
-	    //<<<<<<< HEAD
 	    struct vary_node first_node;
 	    strncpy(first_node.name,op[i].op.vary.p->name,strlen(op[i].op.vary.p->name));
 	    first_node.value = val;
@@ -179,7 +172,6 @@ struct vary_node ** second_pass(struct vary_node *knobs[num_frames]) {
 	      printf("first_node->value: %lf\n",first_node.value);
 	      printf("modified knob: %lf\n\n",knobs[n]->value);
 	    }
-	    //printf("knobs[%d] now: %s\n",n,knobs[n]->name);
 	  }else{
 	    if(n==0){
 	      printf("knobs[0]->name: %s\n\n",knobs[0]->name);
@@ -189,12 +181,10 @@ struct vary_node ** second_pass(struct vary_node *knobs[num_frames]) {
 	    //keep track of first node. This should not change!
 	    //keep track of current node
 	    //add new node to tail
-	    //struct vary_node *other_node = malloc (sizeof(struct vary_node));
 	    other_nodes[n] = malloc (sizeof(struct vary_node));
 	    //struct vary_node other_node;
-	    struct vary_node *next_node = malloc(sizeof(struct vary_node));;
-	    //if(&next_node == /*&*/other_node){
-	    if(&next_node == other_nodes[n]){
+	    struct vary_node *next_node = malloc(sizeof(struct vary_node));
+	    if(next_node == other_nodes[n]){
 	      printf("conspiracy!!!\n");
 	    }
 	    if(n<4){
@@ -204,36 +194,24 @@ struct vary_node ** second_pass(struct vary_node *knobs[num_frames]) {
 	      }
 	      printf("knobs[n]->name: %s\n\n",knobs[n]->name);
 	    }
-	    //strncpy(other_node.name,op[i].op.vary.p->name,strlen(op[i].op.vary.p->name));
-       	    //sprintf(/*other_node.name*/other_node->name,"%s",op[i].op.vary.p->name);
 	    sprintf(other_nodes[n]->name,"%s",op[i].op.vary.p->name);
 	    if(n<4){
-	      //if(/*&*/other_node==knobs[n]){
 	      if(other_nodes[n]==knobs[n]){
 		printf("same node\n");
 	      }
 	      printf("knobs[n]->name: %s\n\n",knobs[n]->name);
 	    }
-	    //other_node.value = val;
-	    //other_node.next = NULL;
-	    //other_node->value = val;
-	    //other_node->next = NULL;
 	    other_nodes[n]->value = val;
 	    other_nodes[n]->next = NULL;
 	    val+=increment;
 	    if(n<4){
 	      printf("knobs[%d]->name: %s\n",n,knobs[n]->name);
 	      printf("  elements: %d\n",elements[n]);
-	      //printf("  other_node.name: %s\n",other_node.name);
-	      //printf("  other_node->name: %s\n",other_node->name);
 	      printf("  other_nodes[n]->name: %s\n",other_nodes[n]->name);
 	    }
 	    if(elements[n]==0){
-	      //knobs[n] = &other_node;
-	      //knobs[n] = other_node;
 	      knobs[n] = other_nodes[n];
 	    }else if(elements[n]==1){
-	      //knobs[n]->next = /*&*/other_node;
 	      knobs[n]->next = other_nodes[n];
 	      if(n<4){
 		printf("  this tail node name: %s\n",knobs[n]->next->name);
@@ -245,7 +223,6 @@ struct vary_node ** second_pass(struct vary_node *knobs[num_frames]) {
 		this_node = this_node->next;
 	      }
 	      if(num==elements[n]){
-		//this_node->next = /*&*/other_node;
 		this_node->next = other_nodes[n];
 	      }
 	       if(n<4){
@@ -350,7 +327,7 @@ void my_main( /*int polygons*/ ) {
 
   first_pass();
 
-  if(num_frames==1){
+  if(num_frames==-1){
     process_knobs();
   }else{
     /*
@@ -371,52 +348,33 @@ void my_main( /*int polygons*/ ) {
 	//printf("found value!\n");
       }
     }
-    //print_knobs();
-    //printf("finished second_pass\n");
-    //printf("knobs[1]: %s\n",knobs[1]->name);
     vn = knobs[0];
-    //printf("first knob: %s\n",vn->name);
     int done;
     done = -1;
-    //printf("knobs[1]: %s\n",knobs[1]->name);
     for(f=0; f<num_frames; f++){
-      //knobs = second_pass();
       print_knobs();
       printf("frame number: %d\n",f);
       //go through knobs checking to see if they are in the symtable, if not add them
-      //printf("knobs[f]: %s\n",knobs[f]->name);
       vn = knobs[f];
-      //printf("knobs[f]: %s\n",knobs[f]->name);
-      //printf("here\n");
       int l;
       l = 1;
       while(l<lastsym){
-	//printf("vn name: %s\n",vn->name);
 	if(lookup_symbol(vn->name)==NULL){
-	  //printf("adding symbol\n");
 	  add_symbol(vn->name, SYM_VALUE, &vn->value);
-	  //printf("added symbol\n");
 	}else{
-	  //printf("setting value\n");
 	  set_value(lookup_symbol(vn->name), vn->value);
-	  //printf("set value\n");
 	}
 	l++;
 	if(l<lastsym){
 	  vn = vn->next;
 	}
-	//printf("finished this loop\n");
       }
-      //printf("exited while loop\n");
-      //printf("knobs[1]: %s\n",knobs[1]->name);
       
       for (i=0;i<lastop;i++) {
 	s = new_stack();
 	transform = new_matrix(4,4);
 	tmp = new_matrix(4,4);
-	//knobs = second_pass();
-	//printf("entered for loop: %d\n",i);
-	//printf("knobs[1] here: %s\n",knobs[1]->name);
+
 	switch (op[i].opcode) {
 
 	case SPHERE:
@@ -472,7 +430,6 @@ void my_main( /*int polygons*/ ) {
 	  yval =  op[i].op.move.d[1];
 	  zval = op[i].op.move.d[2];
 
-	  //do something about knobs
 	  if(op[i].op.move.p!=NULL){
 	    xval *= op[i].op.move.p->s.value;
 	    yval *= op[i].op.move.p->s.value;
@@ -481,7 +438,6 @@ void my_main( /*int polygons*/ ) {
 	  transform = make_translate( xval, yval, zval );
 	  //multiply by the existing origin
 	  matrix_mult( s->data[ s->top ], transform );
-	  //knobs = second_pass();
 	  //put the new matrix on the top
 	  copy_matrix( transform, s->data[ s->top ] );
 	  //free_matrix( transform );
@@ -492,7 +448,6 @@ void my_main( /*int polygons*/ ) {
 	  yval = op[i].op.scale.d[1];
 	  zval = op[i].op.scale.d[2];
 
-	  //do something about knobs
 	  if(op[i].op.move.p!=NULL){
 	    xval *= op[i].op.move.p->s.value;
 	    yval *= op[i].op.move.p->s.value;
@@ -501,7 +456,6 @@ void my_main( /*int polygons*/ ) {
       
 	  transform = make_scale( xval, yval, zval );
 	  matrix_mult( s->data[ s->top ], transform );
-	  //knobs = second_pass();
 	  //put the new matrix on the top
 	  copy_matrix( transform, s->data[ s->top ] );
 	  //free_matrix( transform );
@@ -510,7 +464,6 @@ void my_main( /*int polygons*/ ) {
 	case ROTATE:
 	  xval = op[i].op.rotate.degrees * ( M_PI / 180 );
 
-	  //do something about knobs
 	  if(op[i].op.move.p!=NULL){
 	    xval *= op[i].op.move.p->s.value;
 	  }
@@ -524,7 +477,6 @@ void my_main( /*int polygons*/ ) {
 	    transform = make_rotZ( xval );
 
 	  matrix_mult( s->data[ s->top ], transform );
-	  //knobs = second_pass();
 	  //put the new matrix on the top
 	  copy_matrix( transform, s->data[ s->top ] );
 	  //free_matrix( transform );
