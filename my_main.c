@@ -436,9 +436,9 @@ void my_main( /*int polygons*/ ) {
 	  if ( op[i].op.rotate.axis == 0 ) 
 	    transform = make_rotX( xval );
 	  else if ( op[i].op.rotate.axis == 1 ) 
-	    transform = make_rotY( yval );
+	    transform = make_rotY( xval );
 	  else if ( op[i].op.rotate.axis == 2 ) 
-	    transform = make_rotZ( zval );
+	    transform = make_rotZ( xval );
 
 	  matrix_mult( s->data[ s->top ], transform );
 	  //put the new matrix on the top
