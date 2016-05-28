@@ -151,10 +151,8 @@ void matrix_mult(struct matrix *a, struct matrix *b) {
 	a->m[r][3] * tmp->m[3][0];
     }
   }
-
   free_matrix(tmp);
 }
-
 
 
 /*-------------- void copy_matrix() --------------

@@ -134,7 +134,7 @@ void first_pass() {
     if(op[i].opcode==FRAMES){
       f = 0;
       num_frames = op[i].op.frames.num_frames;
-      printf("frames!\n");
+      //printf("frames!\n");
     }else if(op[i].opcode==BASENAME){
       b = 0;
       strcpy(name,op[i].op.basename.p->name);
@@ -153,7 +153,7 @@ void first_pass() {
   if(f!=0){
     num_frames = 1;
   }
-  printf("num_frames: %d\n", num_frames);
+  //printf("num_frames: %d\n", num_frames);
 }
 
 /*======== struct vary_node ** second_pass()) ==========
@@ -210,7 +210,7 @@ struct vary_node ** second_pass(){
     }
 
   }
-  print_list_n();
+  //print_list_n();
   return knobs;
 }
 
@@ -300,22 +300,11 @@ void my_main( /*int polygons*/ ) {
   }else{
     struct vary_node *local_knobs[num_frames];
     knobs = second_pass();
-    printf("here\n");
-    printf("knobs[0]->value: %f\n",knobs[0]->value);
 
-    int r;
-    for(r=0;r<num_frames;r++){
-      if(r<4){
-	//printf("knobs[%d]->value: %f\n",r,knobs[r]->value);
-	//printf("r: %d, name: %s, next: %s\n",r,knobs[r]->name,knobs[r]->next->name);
-      }
-    }
     vn = knobs[0];
     int done;
     done = -1;
     for(f=0; f<num_frames; f++){
-      //print_knobs();
-      //printf("frame number: %d\n",f);
       //go through knobs checking to see if they are in the symtable, if not add them
       vn = knobs[f];
       int l;
@@ -331,9 +320,8 @@ void my_main( /*int polygons*/ ) {
 	  vn = vn->next;
 	}
       }
-      
+      s = new_stack();
       for (i=0;i<lastop;i++) {
-	s = new_stack();
 	transform = new_matrix(4,4);
 	tmp = new_matrix(4,4);
 
@@ -346,6 +334,7 @@ void my_main( /*int polygons*/ ) {
 		      op[i].op.sphere.r,
 		      step);
 	  //apply the current top origin
+
 	  matrix_mult( s->data[ s->top ], tmp );
 	  draw_polygons( tmp, t, g );
 	  tmp->lastcol = 0;
@@ -409,18 +398,11 @@ void my_main( /*int polygons*/ ) {
 	  xval = op[i].op.scale.d[0];
 	  yval = op[i].op.scale.d[1];
 	  zval = op[i].op.scale.d[2];
-
-	  if(f<4){
-	    printf("original: x[%f] y[%f] z[%f]\n",xval,yval,zval);
-	  }
 	  
 	  if(op[i].op.scale.p!=NULL){
 	    xval = xval * op[i].op.scale.p->s.value;
 	    yval = yval * op[i].op.scale.p->s.value;
 	    zval = zval * op[i].op.scale.p->s.value;
-	    if(f<4){
-	      printf(" xval: %f yval: %f zval: %f\n",xval,yval,zval);
-	    }
 	  }
       
 	  transform = make_scale( xval, yval, zval );
@@ -434,9 +416,7 @@ void my_main( /*int polygons*/ ) {
 	  xval = op[i].op.rotate.degrees * ( M_PI / 180 );
 
 	  if(op[i].op.rotate.p!=NULL){
-	    //printf("spinning!!!\n");
 	    xval *= op[i].op.rotate.p->s.value;
-	    //printf("xval: %f\n",xval);
 	  }
 
 	  //get the axis
@@ -490,14 +470,17 @@ void my_main( /*int polygons*/ ) {
       save_extension( t, frame_name);
       clear_screen(t);
 
-      free_stack( s );
-      free_matrix( tmp );
-      free_matrix( transform );
+      //free_stack( s );
+      //free_matrix( tmp );
+      //free_matrix( transform );
       //save file
       //knobs = second_pass();
       //printf("end knobs[1]: %s\n",knobs[1]->name);
     }
   }
+  free_stack( s );
+  free_matrix( tmp );
+  //free_matrix( transform );
 }
 
 void process_knobs(){
