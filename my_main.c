@@ -198,6 +198,7 @@ struct vary_node ** second_pass(){
 
     if(op[i].opcode==VARY){
       /////////////////////ADD KNOBS TO RELEVANT FRAME BOX IN ARRAY///////////////////
+      val = 0;
       for(n=0; n<num_frames; n++){
 
 	if(n>=start_frame && n<=end_frame){
@@ -401,7 +402,7 @@ void my_main( /*int polygons*/ ) {
 	  matrix_mult( s->data[ s->top ], transform );
 	  //put the new matrix on the top
 	  copy_matrix( transform, s->data[ s->top ] );
-	  //free_matrix( transform );
+	  free_matrix( transform );
 	  break;
 
 	case SCALE:
@@ -409,18 +410,24 @@ void my_main( /*int polygons*/ ) {
 	  yval = op[i].op.scale.d[1];
 	  zval = op[i].op.scale.d[2];
 
+	  if(f<4){
+	    printf("original: x[%f] y[%f] z[%f]\n",xval,yval,zval);
+	  }
+	  
 	  if(op[i].op.scale.p!=NULL){
-	    xval *= op[i].op.scale.p->s.value;
-	    yval *= op[i].op.scale.p->s.value;
-	    zval *= op[i].op.scale.p->s.value;
-	    printf("xval: %f yval: %f zval: %f\n",xval,yval,zval);
+	    xval = xval * op[i].op.scale.p->s.value;
+	    yval = yval * op[i].op.scale.p->s.value;
+	    zval = zval * op[i].op.scale.p->s.value;
+	    if(f<4){
+	      printf(" xval: %f yval: %f zval: %f\n",xval,yval,zval);
+	    }
 	  }
       
 	  transform = make_scale( xval, yval, zval );
 	  matrix_mult( s->data[ s->top ], transform );
 	  //put the new matrix on the top
 	  copy_matrix( transform, s->data[ s->top ] );
-	  //free_matrix( transform );
+	  free_matrix( transform );
 	  break;
 
 	case ROTATE:
@@ -443,7 +450,7 @@ void my_main( /*int polygons*/ ) {
 	  matrix_mult( s->data[ s->top ], transform );
 	  //put the new matrix on the top
 	  copy_matrix( transform, s->data[ s->top ] );
-	  //free_matrix( transform );
+	  free_matrix( transform );
 	  break;
 
 	case PUSH:
